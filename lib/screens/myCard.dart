@@ -23,6 +23,8 @@ class _MyCardState extends State<MyCard> {
   var nameController = TextEditingController();
   var validateDateController = TextEditingController();
   var cvvController = TextEditingController();
+  var cepController = TextEditingController();
+
   var _autoValidate = false;
 
   var _paymentCard = PaymentCard();
@@ -191,7 +193,7 @@ class _MyCardState extends State<MyCard> {
                           children: [
                             TextFormField(
                               decoration: InputDecoration(
-                                labelText: "Número",
+                                labelText: "Número do Cartão",
                                 suffixIcon: Icon(
                                   Icons.credit_card,
                                 ),
@@ -202,8 +204,9 @@ class _MyCardState extends State<MyCard> {
                               inputFormatters: [
                                 WhitelistingTextInputFormatter.digitsOnly,
                                 LengthLimitingTextInputFormatter(19),
-                                CardNumberInputFormatter()
+                                CardNumberInputFormatter(),
                               ],
+                              textCapitalization: TextCapitalization.characters,
                               onSaved: (String value) {
                                 print('onSaved = $value');
                                 print('Num controller has = ${cardNumberController.text}');
@@ -255,6 +258,9 @@ class _MyCardState extends State<MyCard> {
                             TextFormField(
                               decoration: InputDecoration(
                                 labelText: "Nome do Titular",
+                                suffixIcon: Icon(
+                                  Icons.person_outline
+                                )
                               ),
                               controller: nameController,
                               inputFormatters: [
@@ -271,7 +277,51 @@ class _MyCardState extends State<MyCard> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 24,),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 18),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.rectangle,
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black38,
+                          blurRadius: 1.0,
+                          spreadRadius: 0.0,
+                        ),
+                      ]
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12,),
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            decoration: InputDecoration(
+                              labelText: "CEP",
+                              suffixIcon: Icon(
+                                Icons.location_on,
+                              ),
+                            ),
+                            keyboardType: TextInputType.number,
+                            controller: cepController,
+                            inputFormatters: [
+                              WhitelistingTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(11),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 20.0,
+                          ),
+                          SizedBox(
+                            height: 20.0,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 50.0, vertical: 12.0,),
                     child: _getRegisterButton()
@@ -292,6 +342,7 @@ class _MyCardState extends State<MyCard> {
     nameController.dispose();
     validateDateController.dispose();
     cvvController.dispose();
+    cepController.dispose();
     super.dispose();
   }
 
@@ -309,7 +360,7 @@ class _MyCardState extends State<MyCard> {
       setState(() {
         _autoValidate = true;
       });
-      _showInSnackBar('Campo Vazio!');
+      _showInSnackBar('Campos Vazio!');
     } else {
       form.save();
       _showInSnackBar('Cartão Inválido');
@@ -323,22 +374,22 @@ class _MyCardState extends State<MyCard> {
         color: CupertinoColors.activeBlue,
         child: const Text(
           Strings.register,
-          style: const TextStyle(fontSize: 17.0),
+          style: const TextStyle(fontSize: 17.0,),
         ),
       );
     } else {
       return RaisedButton(
         onPressed: _validateInputs,
-        color: Colors.deepOrangeAccent,
-        splashColor: Colors.deepPurple,
+        color: Colors.lightBlueAccent,
+        splashColor: Colors.blueAccent,
         shape: RoundedRectangleBorder(
-          borderRadius: const BorderRadius.all(const Radius.circular(100.0)),
+          borderRadius: const BorderRadius.all(const Radius.circular(100.0,),),
         ),
-        padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 80.0),
+        padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 80.0,),
         textColor: Colors.white,
         child: Text(
           Strings.register.toUpperCase(),
-          style: const TextStyle(fontSize: 17.0),
+          style: const TextStyle(fontSize: 17.0,),
         ),
       );
     }
