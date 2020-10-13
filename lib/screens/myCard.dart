@@ -20,13 +20,19 @@ class _MyCardState extends State<MyCard> {
   var _scaffoldKey = GlobalKey<ScaffoldState>();
   var _formKey = GlobalKey<FormState>();
   var numberController = TextEditingController();
+  var nameController = TextEditingController();
+  var validateDateController = TextEditingController();
+  var cvvController = TextEditingController();
   var _autoValidate = false;
 
   var _paymentCard = PaymentCard();
 
   @override
   void initState() {
-    cardNumberController = TextEditingController();
+    cardNumberController = TextEditingController.fromValue(TextEditingValue(text: '0000 0000 0000 000'));
+    nameController = TextEditingController();
+    cvvController = TextEditingController();
+    validateDateController = TextEditingController();
     cardNumberController.addListener(() {
       setState(() {
         cardNumberController = cardNumberController;
@@ -75,8 +81,9 @@ class _MyCardState extends State<MyCard> {
                                 "${cardNumberController.text}",
                                 style: TextStyle(
                                   fontSize: 24.0,
-                                  color: Colors.white
+                                  color: Colors.white,
                                 ),
+                                textAlign: TextAlign.justify,
                               ),
                             ),
                             SizedBox(
@@ -97,7 +104,7 @@ class _MyCardState extends State<MyCard> {
                                       height: 10.0,
                                     ),
                                     Text(
-                                      "MM/YY",
+                                      "${validateDateController.text}",
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 18.0,
@@ -120,7 +127,7 @@ class _MyCardState extends State<MyCard> {
                                         height: 10.0,
                                       ),
                                       Text(
-                                        "***",
+                                        "${cvvController.text}",
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontSize: 18.0,
@@ -135,7 +142,7 @@ class _MyCardState extends State<MyCard> {
                               height: 8.0,
                             ),
                             Text(
-                              "Meu Nome",
+                              "${nameController.text}",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 22.0
@@ -190,18 +197,18 @@ class _MyCardState extends State<MyCard> {
                                 ),
                               ),
                               keyboardType: TextInputType.number,
+                              controller: cardNumberController,
+                              validator: CardUtils.validateCardNum,
                               inputFormatters: [
                                 WhitelistingTextInputFormatter.digitsOnly,
                                 LengthLimitingTextInputFormatter(19),
                                 CardNumberInputFormatter()
                               ],
-                              controller: cardNumberController,
                               onSaved: (String value) {
                                 print('onSaved = $value');
                                 print('Num controller has = ${cardNumberController.text}');
                                 _paymentCard.number = CardUtils.getCleanedNumber(value);
                               },
-                              validator: CardUtils.validateCardNum,
                             ),
                             SizedBox(
                               height: 20.0,
@@ -209,7 +216,21 @@ class _MyCardState extends State<MyCard> {
                             TextFormField(
                               decoration: InputDecoration(
                                 labelText: "Validade do Cartão",
+                                hintText: "MM//YY",
                               ),
+                              controller: validateDateController,
+                              validator: CardUtils.validateDate,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                WhitelistingTextInputFormatter.digitsOnly,
+                                LengthLimitingTextInputFormatter(4),
+                                CardMonthInputFormatter()
+                              ],
+                              onSaved: (value) {
+                                List<int> expiryDate = CardUtils.getExpiryDate(value);
+                                _paymentCard.month = expiryDate[0];
+                                _paymentCard.year = expiryDate[1];
+                              },
                             ),
                             SizedBox(
                               height: 20.0,
@@ -218,6 +239,15 @@ class _MyCardState extends State<MyCard> {
                               decoration: InputDecoration(
                                 labelText: "Código de Segurança",
                               ),
+                              keyboardType: TextInputType.number,
+                              validator: CardUtils.validateCVV,
+                              inputFormatters: [
+                                WhitelistingTextInputFormatter.digitsOnly,
+                                LengthLimitingTextInputFormatter(3),
+                              ],
+                              onSaved: (value){
+                                _paymentCard.cvv = int.parse(value);
+                              },
                             ),
                             SizedBox(
                               height: 20.0,
@@ -226,6 +256,10 @@ class _MyCardState extends State<MyCard> {
                               decoration: InputDecoration(
                                 labelText: "Nome do Titular",
                               ),
+                              controller: nameController,
+                              inputFormatters: [
+                                LengthLimitingTextInputFormatter(25),
+                              ],
                             ),
                             SizedBox(
                               height: 20.0,
@@ -255,6 +289,9 @@ class _MyCardState extends State<MyCard> {
   void dispose() {
     cardNumberController.removeListener(_getCardTypeFrmNumber);
     cardNumberController.dispose();
+    nameController.dispose();
+    validateDateController.dispose();
+    cvvController.dispose();
     super.dispose();
   }
 
@@ -272,7 +309,7 @@ class _MyCardState extends State<MyCard> {
       setState(() {
         _autoValidate = true;
       });
-      _showInSnackBar('Existem algum erro no seus Dados.');
+      _showInSnackBar('Campo Vazio!');
     } else {
       form.save();
       _showInSnackBar('Cartão Inválido');

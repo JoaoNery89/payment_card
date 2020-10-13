@@ -66,7 +66,7 @@ class CardUtils {
     }
 
     if (!hasDateExpired(month, year)) {
-      return "Card expirado";
+      return "Cartão expirado.";
     }
     return null;
   }
@@ -110,43 +110,6 @@ class CardUtils {
   static String getCleanedNumber(String text) {
     RegExp regExp = RegExp(r"[^0-9]");
     return text.replaceAll(regExp, '');
-  }
-
-  static Widget getCardIcon(CardType cardType) {
-    String img = "";
-    Icon icon;
-    switch (cardType) {
-      case CardType.Master:
-        img = 'mastercard.png';
-        break;
-      case CardType.Visa:
-        img = 'visa.png';
-        break;
-      case CardType.Others:
-        icon = Icon(
-          Icons.credit_card,
-          size: 40.0,
-          color: Colors.grey[600],
-        );
-        break;
-      case CardType.Invalid:
-        icon = Icon(
-          Icons.warning,
-          size: 40.0,
-          color: Colors.grey[600],
-        );
-        break;
-    }
-    Widget widget;
-    if (img.isNotEmpty) {
-      widget = Image.asset(
-        'assets/images/$img',
-        width: 40.0,
-      );
-    } else {
-      widget = icon;
-    }
-    return widget;
   }
 
   static String validateCardNum(String input) {
