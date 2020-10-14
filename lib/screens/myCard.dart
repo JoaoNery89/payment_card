@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:convert' as convert;
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
@@ -23,7 +25,15 @@ class _MyCardState extends State<MyCard> {
   var nameController = TextEditingController();
   var validateDateController = TextEditingController();
   var cvvController = TextEditingController();
+
   var cepController = TextEditingController();
+  var logradouroController = TextEditingController();
+  var numeroController = TextEditingController();
+  var complementoController = TextEditingController();
+  var bairroController = TextEditingController();
+  var cidadeController = TextEditingController();
+  var estadoController = TextEditingController();
+  var paisController = TextEditingController();
 
   var _autoValidate = false;
 
@@ -35,6 +45,10 @@ class _MyCardState extends State<MyCard> {
     nameController = TextEditingController();
     cvvController = TextEditingController();
     validateDateController = TextEditingController();
+    cepController.addListener(() {
+      getCep();
+    });
+
     cardNumberController.addListener(() {
       setState(() {
         cardNumberController = cardNumberController;
@@ -44,6 +58,23 @@ class _MyCardState extends State<MyCard> {
     _paymentCard.type = CardType.Others;
     super.initState();
   }
+
+
+  void getCep() async {
+    String cep = cepController.text;
+    var url = 'https://viacep.com.br/ws/$cep/json/';
+
+    var response = await http.get(url);
+    if (response.statusCode == 200) {
+      var jsonResponse = convert.jsonDecode(response.body);
+      var itemCount = jsonResponse['totalItems'];
+      print('Resposta ao chamar CEP: $jsonResponse');
+    } else {
+      print('Deu erro ao chamar CEP? :${response.statusCode}');
+    }
+
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -306,11 +337,85 @@ class _MyCardState extends State<MyCard> {
                             controller: cepController,
                             inputFormatters: [
                               WhitelistingTextInputFormatter.digitsOnly,
-                              LengthLimitingTextInputFormatter(11),
+                              LengthLimitingTextInputFormatter(8),
                             ],
+                            validator: (value){
+                              if(value.isEmpty){
+                                return 'Digite seu Cep';
+                              } else {
+                                return null;
+                              }
+                            },
                           ),
                           SizedBox(
                             height: 20.0,
+                          ),
+                          TextFormField(
+                            decoration: InputDecoration(
+                              labelText: "Endereço",
+                            ),
+                            keyboardType: TextInputType.number,
+                            controller: logradouroController,
+                          ),
+                          SizedBox(
+                            height: 20.0,
+                          ),
+                          TextFormField(
+                            decoration: InputDecoration(
+                              labelText: "Bairro",
+                            ),
+                            keyboardType: TextInputType.number,
+                            controller: bairroController,
+                          ),
+                          SizedBox(
+                            height: 20.0,
+                          ),
+                          TextFormField(
+                            decoration: InputDecoration(
+                              labelText: "Numero",
+                            ),
+                            keyboardType: TextInputType.number,
+                            controller: numeroController,
+                          ),
+                          SizedBox(
+                            height: 20.0,
+                          ),
+                          TextFormField(
+                            decoration: InputDecoration(
+                              labelText: "Complemento",
+                            ),
+                            keyboardType: TextInputType.number,
+                            controller: complementoController,
+                          ),
+                          SizedBox(
+                            height: 20.0,
+                          ),
+                          TextFormField(
+                            decoration: InputDecoration(
+                              labelText: "Cidade",
+                            ),
+                            keyboardType: TextInputType.number,
+                            controller: cidadeController,
+                          ),
+                          SizedBox(
+                            height: 20.0,
+                          ),
+                          TextFormField(
+                            decoration: InputDecoration(
+                              labelText: "Pais",
+                            ),
+                            keyboardType: TextInputType.number,
+                            controller: paisController,
+                          ),
+                          SizedBox(
+                            height: 20.0,
+                          ),
+                          TextFormField(
+                            decoration: InputDecoration(
+                              labelText: "Numero",
+                            ),
+                            keyboardType: TextInputType.number,
+                            controller: bairroController,
                           ),
                           SizedBox(
                             height: 20.0,
@@ -342,7 +447,17 @@ class _MyCardState extends State<MyCard> {
     nameController.dispose();
     validateDateController.dispose();
     cvvController.dispose();
-    cepController.dispose();
+    cepController.removeListener(() {
+      getCep();
+    });
+   logradouroController.dispose();
+   numeroController.dispose();
+   complementoController.dispose();
+   bairroController.dispose();
+   cidadeController.dispose();
+   estadoController.dispose();
+   paisController.dispose();
+
     super.dispose();
   }
 
