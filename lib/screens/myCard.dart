@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import '../constants/input_formatters.dart';
 import '../constants/meusDados.dart';
 import '../constants/utils.dart';
+import '../model/cepModel.dart';
 
 class MyCard extends StatefulWidget {
   MyCard({Key key, this.title}) : super(key: key);
@@ -21,6 +22,7 @@ class _MyCardState extends State<MyCard> {
   TextEditingController cardNumberController;
   var _scaffoldKey = GlobalKey<ScaffoldState>();
   var _formKey = GlobalKey<FormState>();
+
   var numberController = TextEditingController();
   var nameController = TextEditingController();
   var validateDateController = TextEditingController();
@@ -34,6 +36,7 @@ class _MyCardState extends State<MyCard> {
   var cidadeController = TextEditingController();
   var estadoController = TextEditingController();
   var paisController = TextEditingController();
+  var ufController = TextEditingController();
 
   var _autoValidate = false;
 
@@ -59,7 +62,6 @@ class _MyCardState extends State<MyCard> {
     super.initState();
   }
 
-
   void getCep() async {
     String cep = cepController.text;
     var url = 'https://viacep.com.br/ws/$cep/json/';
@@ -67,14 +69,19 @@ class _MyCardState extends State<MyCard> {
     var response = await http.get(url);
     if (response.statusCode == 200) {
       var jsonResponse = convert.jsonDecode(response.body);
-      var itemCount = jsonResponse['totalItems'];
+      CepModel cepResponse = CepModel.fromJson(jsonResponse);
+      setState(() {
+        logradouroController.text = cepResponse.logradouro;
+        bairroController.text = cepResponse.bairro;
+        cidadeController.text = cepResponse.localidade;
+        ufController.text = cepResponse.uf;
+      });
       print('Resposta ao chamar CEP: $jsonResponse');
     } else {
       print('Deu erro ao chamar CEP? :${response.statusCode}');
     }
 
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -348,7 +355,7 @@ class _MyCardState extends State<MyCard> {
                             },
                           ),
                           SizedBox(
-                            height: 20.0,
+                            height: 15.0,
                           ),
                           TextFormField(
                             decoration: InputDecoration(
@@ -358,7 +365,7 @@ class _MyCardState extends State<MyCard> {
                             controller: logradouroController,
                           ),
                           SizedBox(
-                            height: 20.0,
+                            height: 15.0,
                           ),
                           TextFormField(
                             decoration: InputDecoration(
@@ -368,37 +375,7 @@ class _MyCardState extends State<MyCard> {
                             controller: bairroController,
                           ),
                           SizedBox(
-                            height: 20.0,
-                          ),
-                          TextFormField(
-                            decoration: InputDecoration(
-                              labelText: "Numero",
-                            ),
-                            keyboardType: TextInputType.number,
-                            controller: numeroController,
-                          ),
-                          SizedBox(
-                            height: 20.0,
-                          ),
-                          TextFormField(
-                            decoration: InputDecoration(
-                              labelText: "Complemento",
-                            ),
-                            keyboardType: TextInputType.number,
-                            controller: complementoController,
-                          ),
-                          SizedBox(
-                            height: 20.0,
-                          ),
-                          TextFormField(
-                            decoration: InputDecoration(
-                              labelText: "Cidade",
-                            ),
-                            keyboardType: TextInputType.number,
-                            controller: cidadeController,
-                          ),
-                          SizedBox(
-                            height: 20.0,
+                            height: 15.0,
                           ),
                           TextFormField(
                             decoration: InputDecoration(
@@ -408,17 +385,37 @@ class _MyCardState extends State<MyCard> {
                             controller: paisController,
                           ),
                           SizedBox(
-                            height: 20.0,
+                            height: 15.0,
+                          ),
+                          TextFormField(
+                            decoration: InputDecoration(
+                              labelText: "UF",
+                            ),
+                            keyboardType: TextInputType.number,
+                            controller: ufController,
+                          ),
+                          SizedBox(
+                            height: 15.0,
                           ),
                           TextFormField(
                             decoration: InputDecoration(
                               labelText: "Numero",
                             ),
                             keyboardType: TextInputType.number,
-                            controller: bairroController,
+                            controller: numeroController,
                           ),
                           SizedBox(
-                            height: 20.0,
+                            height: 15.0,
+                          ),
+                          TextFormField(
+                            decoration: InputDecoration(
+                              labelText: "Complemento",
+                            ),
+                            keyboardType: TextInputType.number,
+                            controller: complementoController,
+                          ),
+                          SizedBox(
+                            height: 15.0,
                           ),
                         ],
                       ),
@@ -450,13 +447,14 @@ class _MyCardState extends State<MyCard> {
     cepController.removeListener(() {
       getCep();
     });
-   logradouroController.dispose();
-   numeroController.dispose();
-   complementoController.dispose();
-   bairroController.dispose();
-   cidadeController.dispose();
-   estadoController.dispose();
-   paisController.dispose();
+    logradouroController.dispose();
+    numeroController.dispose();
+    complementoController.dispose();
+    bairroController.dispose();
+    cidadeController.dispose();
+    estadoController.dispose();
+    paisController.dispose();
+    ufController.dispose();
 
     super.dispose();
   }
@@ -486,7 +484,7 @@ class _MyCardState extends State<MyCard> {
     if (Platform.isIOS) {
       return CupertinoButton(
         onPressed: _validateInputs,
-        color: CupertinoColors.activeBlue,
+        color: CupertinoColors.systemBlue,
         child: const Text(
           Strings.register,
           style: const TextStyle(fontSize: 17.0,),
@@ -495,12 +493,12 @@ class _MyCardState extends State<MyCard> {
     } else {
       return RaisedButton(
         onPressed: _validateInputs,
-        color: Colors.lightBlueAccent,
+        color: Colors.lightBlueAccent.shade700,
         splashColor: Colors.blueAccent,
         shape: RoundedRectangleBorder(
           borderRadius: const BorderRadius.all(const Radius.circular(100.0,),),
         ),
-        padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 80.0,),
+        padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 100.0,),
         textColor: Colors.white,
         child: Text(
           Strings.register.toUpperCase(),
